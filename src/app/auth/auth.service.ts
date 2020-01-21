@@ -4,24 +4,42 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
+import { Store } from '@ngrx/store';
+import { ACTIVAR_LOADING, DESACTIVAR_LOADING } from '../shared/ui.actions';
+import { SET_USER } from './auth.actions';
+
 import * as firebase from 'firebase';
 import { map } from 'rxjs/operators';
 import { User } from './user.model';
+import { AppState } from '../app.reducer';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  private userSubscription: Subscription = new Subscription();
+
   constructor( private afAuth: AngularFireAuth,
                private router: Router,
-               private afDB: AngularFirestore ) { }
+               private afDB: AngularFirestore,
+               private store: Store<AppState> ) { }
 
   // Metodo para saber usuario logedado
   // Solo se debe ejecutar una vez
   initAuthListener() {
     this.afAuth.authState.subscribe( ( fbUser: firebase.User ) => {
-      console.log( fbUser );
+      // console.log( fbUser );
+      if( fbUser ) {
+        this.userSubscription = this.afDB.doc(`${fbUser.uid}/usuario`).valueChanges()
+              .subscribe( (usuarioObj: any) => {
+                const newUser = new User( usuarioObj );
+                this.store.dispatch( SET_USER( { user: newUser} ));
+              });
+      } else {
+        this.userSubscription.unsubscribe();
+      }
     });
   }
 
@@ -39,6 +57,8 @@ export class AuthService {
 
   crearUsario( nombre: string, email: string, password: string) {
 
+    this.store.dispatch( ACTIVAR_LOADING() );
+
     this.afAuth.auth
         .createUserWithEmailAndPassword( email, password)
         .then( resp => {
@@ -53,10 +73,12 @@ export class AuthService {
           this.afDB.doc(`${resp.user.uid}/usuario`)
                 .set( user )
                 .then( () => {
-                   // NAVEGAMOS AL DASHBOARD
+                  // NAVEGAMOS AL DASHBOARD
                   this.router.navigate(['/']);
+                  this.store.dispatch( DESACTIVAR_LOADING() );
                 })
                 .catch( error => {
+                  this.store.dispatch( DESACTIVAR_LOADING() );
                   Swal.fire({
                     title: 'Error Guardar Usuario',
                     text: error.message,
@@ -67,6 +89,7 @@ export class AuthService {
         })
         .catch( error => {
           // console.error( error );
+          this.store.dispatch( DESACTIVAR_LOADING() );
           Swal.fire({
             title: 'Error Registro',
             text: error.message,
@@ -78,15 +101,19 @@ export class AuthService {
 
   login( email: string, password: string) {
 
+    this.store.dispatch( ACTIVAR_LOADING() );
+
     this.afAuth.auth
         .signInWithEmailAndPassword( email, password )
         .then( resp => {
           // console.log( resp );
           // NAVEGAMOS AL DASHBOARD
           this.router.navigate(['/']);
+          this.store.dispatch( DESACTIVAR_LOADING() );
         })
         .catch( error => {
           // console.error( error );
+          this.store.dispatch( DESACTIVAR_LOADING() );
           Swal.fire({
             title: 'Error en el login',
             text: error.message,
