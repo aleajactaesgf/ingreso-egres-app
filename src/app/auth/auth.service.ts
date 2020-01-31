@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 
 import { Store } from '@ngrx/store';
 import { ACTIVAR_LOADING, DESACTIVAR_LOADING } from '../shared/ui.actions';
-import { SET_USER } from './auth.actions';
+import { SET_USER, UNSET_USER } from './auth.actions';
 
 import * as firebase from 'firebase';
 import { map } from 'rxjs/operators';
@@ -20,6 +20,7 @@ import { Subscription } from 'rxjs';
 export class AuthService {
 
   private userSubscription: Subscription = new Subscription();
+  private usuario: User;
 
   constructor( private afAuth: AngularFireAuth,
                private router: Router,
@@ -36,8 +37,10 @@ export class AuthService {
               .subscribe( (usuarioObj: any) => {
                 const newUser = new User( usuarioObj );
                 this.store.dispatch( SET_USER( { user: newUser} ));
+                this.usuario = newUser;
               });
       } else {
+        this.usuario = null;
         this.userSubscription.unsubscribe();
       }
     });
@@ -126,6 +129,12 @@ export class AuthService {
   logout() {
     this.router.navigate(['/login']);
     this.afAuth.auth.signOut();
+    this.store.dispatch( UNSET_USER());
+  }
+
+  getUsuario() {
+    // Se rompe la referencia con ...
+    return { ...this.usuario };
   }
 
 }

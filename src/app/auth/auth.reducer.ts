@@ -14,7 +14,8 @@ const initState: AuthState = {
 
 const AUTH_REDUCER = createReducer(
     initState,
-    on(fromAuth.SET_USER, (state, { user }) => ({ ...state, user }))
+    on(fromAuth.SET_USER, (state, { user }) => ({ ...state, user })),
+    on(fromAuth.UNSET_USER, () => ({ user: null }))
 );
 
 export function authReducer(state: AuthState | undefined, action: Action) {

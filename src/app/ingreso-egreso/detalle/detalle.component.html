@@ -5,7 +5,7 @@
                 <h4 class="card-title">Detalle de ingreso egreso</h4>
 
                 <table class="table">
-                    <thead>
+                    <thead class="thead-dark">
                         <tr>
                             <th>Descripción</th>
                             <th>Monto</th>
@@ -15,11 +15,21 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>Descripción</td>
-                            <td>Monto</td>
-                            <td>Tipo</td>
-                            <td>acciones</td>
+                        <tr *ngFor="let item of items | ordenIngresoEgreso">
+                            <td class="align-middle">{{item.descripcion}}</td>
+                            <td class="align-middle">{{item.monto | currency:'EUR':'symbol':'1.2-2':'es'}}</td>
+                            <td class="align-middle">
+                                <span [ngClass]="{
+                                    'text-success':item.tipo === 'ingreso',
+                                    'text-danger':item.tipo === 'egreso'
+                                }">
+                                    {{item.tipo}}
+
+                                </span>
+                            </td>
+                            <td class="align-middle text-center">
+                                <button (click)="borrarItem( item )" class="btn btn-danger"><i class="fa fa-trash-alt"></i></button>
+                            </td>
                         </tr>
                     </tbody>
 
