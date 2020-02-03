@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState } from 'src/app/app.reducer';
+// import { AppState } from 'src/app/app.reducer';
 import { IngresoEgreso } from '../ingreso-egreso.model';
 
 import { registerLocaleData } from '@angular/common';
@@ -9,6 +9,7 @@ registerLocaleData(localeEs, 'es');
 import { Subscription } from 'rxjs';
 import { IngresoEgresoService } from '../ingreso-egreso.service';
 import Swal from 'sweetalert2';
+import { AppStateIngresoEgreso } from '../ingreso-egreso.reducer';
 
 @Component({
   selector: 'app-detalle',
@@ -19,7 +20,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
 
   items: IngresoEgreso[];
   subscription: Subscription = new Subscription();
-  constructor( private store: Store<AppState>,
+  constructor( private store: Store<AppStateIngresoEgreso>,
                public ingresoEgresoService: IngresoEgresoService) { }
 
   ngOnInit() {

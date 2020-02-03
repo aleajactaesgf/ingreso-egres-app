@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { AppState } from 'src/app/app.reducer';
+// import { AppState } from 'src/app/app.reducer';
 import { Subscription } from 'rxjs';
 import { IngresoEgreso } from '../ingreso-egreso.model';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { Label, MultiDataSet } from 'ng2-charts';
+import { AppStateIngresoEgreso } from '../ingreso-egreso.reducer';
 registerLocaleData(localeEs, 'es');
 
 @Component({
@@ -26,7 +27,7 @@ export class EstadisticaComponent implements OnInit, OnDestroy {
   public doughnutChartLabels: Label[] = ['Ingresos', 'Egresos'];
   public doughnutChartData: MultiDataSet = [];
 
-  constructor( private store: Store<AppState>) { }
+  constructor( private store: Store<AppStateIngresoEgreso>) { }
 
   ngOnInit() {
     this.subscription = this.store.select('ingresoEgreso')
